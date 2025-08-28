@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome</title>
+  <meta name="description" content="Simple, privacy‑friendly landing page." />
+  <meta name="color-scheme" content="light dark" />
+  <meta property="og:title" content="Welcome" />
+  <meta property="og:description" content="Simple, privacy‑friendly landing page." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/og-image.png" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2300AEEF'/><path d='M10 60 Q 30 30 50 60 T 90 60' fill='none' stroke='white' stroke-width='10' stroke-linecap='round'/></svg>">
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --fg: #e6e6e6;
+      --muted: #9aa3af;
+      --card: #111217;
+      --accent: #00aeef;
+      --link: #8ab4f8;
+    }
+    @media (prefers-color-scheme: light) {
+      :root { --bg: #ffffff; --fg: #0b0c10; --muted: #6b7280; --card: #f6f7fb; --link: #1e40af; }
+    }
+    html, body {
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(80vw 80vh at 50% 0%, color-mix(in oklab, var(--card) 75%, transparent) 0%, transparent 60%) var(--bg);
+      color: var(--fg);
+      display: grid;
+      place-items: center;
+    }
+    .wrap {
+      width: min(920px, 92vw);
+      padding: clamp(20px, 3vw, 40px);
+      text-align: center;
+    }
+    .card {
+      background: color-mix(in oklab, var(--card) 92%, transparent);
+      border: 1px solid color-mix(in oklab, var(--fg) 10%, transparent);
+      border-radius: 24px;
+      padding: clamp(24px, 4vw, 44px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    }
+    h1 { font-size: clamp(28px, 5vw, 42px); margin: 0 0 8px; letter-spacing: -0.02em; }
+    p.lead { color: var(--muted); font-size: clamp(16px, 2.5vw, 18px); margin: 0 0 22px; }
+    .dots { display: inline-flex; gap: 8px; margin: 18px 0 28px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: color-mix(in oklab, var(--fg) 25%, transparent); }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 8px; }
+    a.btn, button.btn {
+      appearance: none; border: 0; cursor: pointer; text-decoration: none; color: var(--fg);
+      padding: 12px 16px; border-radius: 14px; font-weight: 600;
+      background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 60%, transparent), color-mix(in oklab, var(--accent) 30%, transparent));
+      box-shadow: 0 6px 16px rgba(0,0,0,.2);
+    }
+    a.ghost {
+      background: transparent; border: 1px solid color-mix(in oklab, var(--fg) 14%, transparent); font-weight: 600;
+    }
+    .links { margin-top: 28px; font-size: 15px; color: var(--muted); }
+    .links a { color: var(--link); text-underline-offset: 3px; }
+    footer { margin-top: 30px; font-size: 12px; color: var(--muted); }
+    .shield { display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; border:1px solid color-mix(in oklab, var(--fg) 12%, transparent); }
+    .shield svg { width:16px; height:16px; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card" role="region" aria-label="Intro">
+      <!-- Logo / Mark (inline SVG, easily replace or remove) -->
+      <div aria-hidden="true" style="display:inline-block;margin-bottom:14px">
+        <svg width="64" height="64" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo">
+          <circle cx="50" cy="50" r="46" fill="var(--accent)" />
+          <path d="M10 60 Q 30 30 50 60 T 90 60" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" />
+        </svg>
+      </div>
+
+      <h1>Welcome</h1>
+      <p class="lead">This domain hosts a minimal, privacy‑friendly landing page. No tracking, no cookies, no personal data.</p>
+
+      <div class="dots" aria-hidden="true">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+
+      <div class="actions" role="navigation" aria-label="Primary">
+        <a class="btn" href="#" rel="me noopener" target="_blank">Primary Link</a>
+        <a class="btn ghost" href="#" rel="noopener" target="_blank">Secondary Link</a>
+        <a class="btn ghost" href="#" rel="noopener" target="_blank">Another Link</a>
+      </div>
+
+      <div class="links" aria-label="Notes">
+        <span class="shield" title="Privacy friendly">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>No cookies • No analytics</span>
+        </span>
+      </div>
+
+      <footer>
+        <span>© <span id="y"></span> • All rights reserved.</span>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    // simple enhancement: current year
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
