@@ -1,4 +1,5 @@
 User-agent: *
-Disallow:
+Disallow: /travel/
+Disallow: /wordle/
 
 Sitemap: https://www.dunnonline.co.uk/sitemap.xml

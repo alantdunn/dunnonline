@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>West Highland Line Day Trip — by Train from Helensburgh</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-deep:    #2d4a2d;
+      --green-mid:     #3e6b3e;
+      --green-light:   #e8f0e8;
+      --green-pale:    #f2f6f2;
+      --earth-brown:   #7a5c3e;
+      --earth-light:   #f5ede3;
+      --loch-blue:     #3a7ca5;
+      --loch-light:    #dceef7;
+      --gold:          #c9922a;
+      --gold-light:    #fdf3e0;
+      --text-dark:     #1e2b1e;
+      --text-mid:      #4a5e4a;
+      --text-light:    #7a8c7a;
+      --card-bg:       #ffffff;
+      --border:        #d4e0d4;
+      --shadow-sm:     0 1px 4px rgba(30,43,30,0.08);
+      --shadow-md:     0 4px 16px rgba(30,43,30,0.12);
+      --shadow-lg:     0 8px 32px rgba(30,43,30,0.15);
+      --radius:        12px;
+      --radius-sm:     8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--green-pale);
+      color: var(--text-dark);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ─── Hero Header ──────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(160deg, var(--green-deep) 0%, var(--green-mid) 60%, #4a7a5c 100%);
+      color: white;
+      padding: 56px 24px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 80%, rgba(58,124,165,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(201,146,42,0.12) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-inner { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
+
+    .hero-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: #ffffff;
+      margin-bottom: 16px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+
+    .hero-sub {
+      font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+      color: rgba(255,255,255,0.8);
+      max-width: 520px;
+      margin: 0 auto 28px;
+      line-height: 1.65;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.9);
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ─── Map ──────────────────────────────────────────────── */
+    .map-section {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    #map {
+      width: 100%;
+      height: 360px;
+    }
+
+    /* ─── Main Content Container ───────────────────────────── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ─── Section Headings ──────────────────────────────────── */
+    .section-head {
+      padding: 44px 0 24px;
+      text-align: center;
+    }
+
+    .section-head h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 700;
+      color: var(--green-deep);
+      margin-bottom: 8px;
+    }
+
+    .section-head p {
+      color: var(--text-mid);
+      font-size: 0.95rem;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ─── Destination Cards ──────────────────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding-bottom: 16px;
+    }
+
+    @media (min-width: 860px) {
+      .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+      position: relative;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    /* Top pick styling — spans full width on all screens */
+    .card--top-pick {
+      border: 2px solid var(--gold);
+      background: linear-gradient(135deg, #fffdf7 0%, var(--gold-light) 100%);
+      grid-column: 1 / -1;
+      box-shadow: var(--shadow-md);
+    }
+
+    .card--top-pick:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .top-pick-badge {
+      position: absolute;
+      top: -1px;
+      right: 20px;
+      background: var(--gold);
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      padding: 5px 12px 4px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 8px rgba(201,146,42,0.35);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .card-title-block { flex: 1; min-width: 0; }
+
+    .card-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--green-deep);
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .card--top-pick .card-title { color: #3a2a06; }
+
+    .card-journey {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--loch-blue);
+      background: var(--loch-light);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .card--top-pick .card-journey {
+      color: var(--earth-brown);
+      background: rgba(201,146,42,0.12);
+    }
+
+    .card-body { display: flex; flex-direction: column; gap: 14px; }
+
+    .detail-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .detail-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+      width: 22px;
+      text-align: center;
+      margin-top: 1px;
+    }
+
+    .detail-content { flex: 1; min-width: 0; }
+
+    .detail-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 2px;
+    }
+
+    .detail-text {
+      font-size: 0.88rem;
+      color: var(--text-mid);
+      line-height: 1.5;
+    }
+
+    .detail-text strong { color: var(--text-dark); font-weight: 600; }
+
+    .card-why {
+      margin-top: 6px;
+      padding: 12px 14px;
+      background: var(--green-light);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--green-mid);
+    }
+
+    .card--top-pick .card-why {
+      background: rgba(201,146,42,0.1);
+      border-left-color: var(--gold);
+    }
+
+    .card-why p {
+      font-size: 0.85rem;
+      color: var(--text-mid);
+      line-height: 1.5;
+    }
+
+    .card--top-pick .card-why p { color: #5a4010; }
+
+    .card-why .why-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 4px;
+    }
+
+    .card--top-pick .card-why .why-label { color: rgba(90,64,16,0.7); }
+
+    /* ─── Train Times Section ────────────────────────────────── */
+    .card-times {
+      margin-top: 6px;
+      padding: 12px 14px;
+      background: var(--loch-light);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--loch-blue);
+    }
+
+    .card--top-pick .card-times {
+      background: rgba(58,124,165,0.09);
+      border-left-color: var(--loch-blue);
+    }
+
+    .times-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--loch-blue);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .times-rows {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      margin-bottom: 8px;
+    }
+
+    .times-cell {
+      font-size: 0.8rem;
+      color: var(--text-mid);
+      line-height: 1.45;
+    }
+
+    .times-cell .times-dir {
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 2px;
+    }
+
+    .times-cell strong {
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    .times-duration {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--loch-blue);
+      margin-bottom: 6px;
+    }
+
+    .times-note {
+      font-size: 0.78rem;
+      color: var(--text-mid);
+      line-height: 1.45;
+      border-top: 1px solid rgba(58,124,165,0.18);
+      padding-top: 6px;
+      margin-top: 4px;
+    }
+
+    .times-note strong { color: var(--text-dark); font-weight: 600; }
+
+    .times-verify {
+      font-size: 0.72rem;
+      color: var(--text-light);
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    /* ─── Top Pick Inner Layout (wide) ───────────────────────── */
+    @media (min-width: 640px) {
+      .card--top-pick .card-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 24px;
+      }
+
+      .card--top-pick .card-why,
+      .card--top-pick .card-times {
+        grid-column: 1 / -1;
+        margin-top: 0;
+      }
+    }
+
+    /* ─── Practical Notes ────────────────────────────────────── */
+    .practical-section {
+      padding: 44px 0 0;
+    }
+
+    .practical-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding-bottom: 0;
+    }
+
+    @media (min-width: 580px) {
+      .practical-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .note-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .note-card-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .note-card-icon { font-size: 1.3rem; }
+
+    .note-card-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--green-deep);
+      letter-spacing: 0.01em;
+    }
+
+    .note-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .note-card li {
+      font-size: 0.84rem;
+      color: var(--text-mid);
+      line-height: 1.55;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .note-card li::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: var(--text-light);
+    }
+
+    .note-card li strong { color: var(--text-dark); font-weight: 600; }
+
+    .note-card a {
+      color: var(--loch-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .note-card a:hover { text-decoration: underline; }
+
+    .note-warn {
+      margin-top: 12px;
+      padding: 10px 13px;
+      background: #fff8e6;
+      border: 1px solid #f0d080;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      color: #7a5500;
+      line-height: 1.5;
+    }
+
+    .note-warn strong { color: #5a3c00; }
+
+    /* ─── Footer ──────────────────────────────────────────────── */
+    footer {
+      margin-top: 56px;
+      padding: 32px 24px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      background: var(--card-bg);
+    }
+
+    footer p {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1rem;
+      color: var(--text-mid);
+      font-style: italic;
+    }
+
+    footer .footer-sub {
+      font-family: 'Inter', sans-serif;
+      font-style: normal;
+      font-size: 0.78rem;
+      color: var(--text-light);
+      margin-top: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    /* ─── Route divider ───────────────────────────────────────── */
+    .route-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0 32px;
+      color: var(--text-light);
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .route-divider::before,
+    .route-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ─── Leaflet custom pin overrides ───────────────────────── */
+    .custom-pin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    }
+
+    .custom-pin span {
+      transform: rotate(45deg);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    /* ─── Card mini-maps ──────────────────────────────────────── */
+    .card-maps {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+
+    .card-map-wrap {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .card-map-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      text-align: center;
+    }
+
+    .card-map {
+      height: 220px;
+      width: 100%;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      /* Prevent Leaflet from showing a grey flash before tiles load */
+      background: #f0ede8;
+    }
+
+    /* Suppress Leaflet's default focus outline inside card maps */
+    .card-map .leaflet-container {
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ─── Hero ──────────────────────────────────────────────── -->
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">West Highland Line &nbsp;·&nbsp; A Day Out by Train</div>
+      <h1>Into the Highlands<br/>with the Dogs</h1>
+      <p class="hero-sub">
+        A Sunday adventure from Helensburgh Upper — loch views, forest trails,
+        dog-friendly pubs, and some of Scotland's most dramatic train scenery.
+      </p>
+      <div class="hero-meta">
+        <span class="hero-pill">🚂 From Helensburgh Upper</span>
+        <span class="hero-pill">🐾 2 Dogs</span>
+        <span class="hero-pill">☀️ Morning out, lunch, home in the afternoon</span>
+        <span class="hero-pill">🗺️ 4 destination options</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Map ──────────────────────────────────────────────── -->
+  <div class="map-section">
+    <div id="map"></div>
+  </div>
+
+  <!-- ─── Destination Cards ──────────────────────────────────── -->
+  <main>
+    <div class="container">
+      <div class="section-head">
+        <h2>Where to Go</h2>
+        <p>Four destinations, each with a dog-friendly pub and a great walk. One clear favourite.</p>
+      </div>
+
+      <div class="route-divider">Choose your stop</div>
+
+      <div class="cards-grid">
+
+        <!-- ⭐ TOP PICK: Arrochar & Tarbet -->
+        <div class="card card--top-pick">
+          <div class="top-pick-badge">⭐ Top Pick</div>
+          <div class="card-header">
+            <div class="card-icon">🏔️</div>
+            <div class="card-title-block">
+              <div class="card-title">Arrochar &amp; Tarbet</div>
+              <div class="card-journey">🚂 ~35 minutes</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-row">
+              <div class="detail-icon">🍺</div>
+              <div class="detail-content">
+                <div class="detail-label">Pub</div>
+                <div class="detail-text">
+                  <strong>Village Inn Arrochar</strong> — dogs welcome inside the bar, Sunday roast served, dedicated dog menu
+                </div>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🥾</div>
+              <div class="detail-content">
+                <div class="detail-label">Walk</div>
+                <div class="detail-text">
+                  <strong>Hidden Heritage Trail</strong> — 3.5-mile circular via Tarbet and Arrochar, firm well-maintained paths
+                </div>
+              </div>
+            </div>
+            <div class="card-why">
+              <div class="why-label">Highlights</div>
+              <p>Short journey leaves maximum time for the walk and lunch. A proper Highland setting without a long travel day.</p>
+            </div>
+            <div class="card-maps">
+              <div class="card-map-wrap">
+                <div class="card-map-label">Detail</div>
+                <div class="card-map" id="map-arrochar-detail"></div>
+              </div>
+              <div class="card-map-wrap">
+                <div class="card-map-label">Walk overview</div>
+                <div class="card-map" id="map-arrochar-overview"></div>
+              </div>
+            </div>
+            <div class="card-times">
+              <div class="times-label">🚂 Train Times</div>
+              <div class="times-rows">
+                <div class="times-cell">
+                  <div class="times-dir">Outbound</div>
+                  <strong>HLU 10:41 → arr 11:12</strong><br/>
+                  or HLU 09:50 → arr 10:21 (early)
+                </div>
+                <div class="times-cell">
+                  <div class="times-dir">Return</div>
+                  <strong>dep 14:09 → HLU 14:40</strong><br/>
+                  or dep 17:57 → HLU 18:29
+                </div>
+              </div>
+              <div class="times-duration">~3 hrs at destination (10:41 out) · ~3h 50min (09:50 out) before 14:09 return</div>
+              <div class="times-note">⚠️ Missing the <strong>14:09 return</strong> means waiting until 17:57 — a <strong>3hr 45min gap</strong>. Don't miss it.</div>
+              <div class="times-verify">Times via Realtime Trains — verify on ScotRail before travel</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ardlui -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🌊</div>
+            <div class="card-title-block">
+              <div class="card-title">Ardlui</div>
+              <div class="card-journey">🚂 ~60 minutes</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-row">
+              <div class="detail-icon">🍺</div>
+              <div class="detail-content">
+                <div class="detail-label">Pub</div>
+                <div class="detail-text">
+                  <strong>Ardlui Hotel</strong> — dogs welcome in bar and restaurant, right on Loch Lomond, 4 mins from the station
+                </div>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🥾</div>
+              <div class="detail-content">
+                <div class="detail-label">Walk</div>
+                <div class="detail-text">Lochside stroll — 2–3 miles, relaxed and flat</div>
+              </div>
+            </div>
+            <div class="card-why">
+              <div class="why-label">Highlights</div>
+              <p>Beautiful loch setting, great pub atmosphere, easy walk.</p>
+            </div>
+            <div class="card-maps">
+              <div class="card-map-wrap">
+                <div class="card-map-label">Detail</div>
+                <div class="card-map" id="map-ardlui-detail"></div>
+              </div>
+              <div class="card-map-wrap">
+                <div class="card-map-label">Walk overview</div>
+                <div class="card-map" id="map-ardlui-overview"></div>
+              </div>
+            </div>
+            <div class="card-times">
+              <div class="times-label">🚂 Train Times</div>
+              <div class="times-rows">
+                <div class="times-cell">
+                  <div class="times-dir">Outbound</div>
+                  <strong>HLU 10:41 → arr 11:28</strong><br/>
+                  or HLU 09:50 → arr 10:34 (early)
+                </div>
+                <div class="times-cell">
+                  <div class="times-dir">Return</div>
+                  <strong>dep 13:55 → HLU 14:40</strong><br/>
+                  or dep 17:43 → HLU 18:29
+                </div>
+              </div>
+              <div class="times-duration">~2h 27min before 13:55 return (tight) · or ~7 hrs if taking the 17:43 return (very relaxed)</div>
+              <div class="times-note">The gap between the two returns is large — <strong>decide before you go</strong> whether you want a short sharp visit or a long day out.</div>
+              <div class="times-verify">Times via Realtime Trains — verify on ScotRail before travel</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Crianlarich -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🌲</div>
+            <div class="card-title-block">
+              <div class="card-title">Crianlarich</div>
+              <div class="card-journey">🚂 ~65 minutes</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-row">
+              <div class="detail-icon">🍺</div>
+              <div class="detail-content">
+                <div class="detail-label">Pub</div>
+                <div class="detail-text">
+                  <strong>Rod &amp; Reel</strong> — dogs welcome in the bar, 250m from the station
+                </div>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🥾</div>
+              <div class="detail-content">
+                <div class="detail-label">Walk</div>
+                <div class="detail-text">West Highland Way forest loop — 3–4 miles, more rugged feel</div>
+              </div>
+            </div>
+            <div class="card-why">
+              <div class="why-label">Highlights</div>
+              <p>Proper Highland village feel. Longer journey but great scenery all the way up.</p>
+            </div>
+            <div class="card-maps">
+              <div class="card-map-wrap">
+                <div class="card-map-label">Detail</div>
+                <div class="card-map" id="map-crianlarich-detail"></div>
+              </div>
+              <div class="card-map-wrap">
+                <div class="card-map-label">Walk overview</div>
+                <div class="card-map" id="map-crianlarich-overview"></div>
+              </div>
+            </div>
+            <div class="card-times">
+              <div class="times-label">🚂 Train Times</div>
+              <div class="times-rows">
+                <div class="times-cell">
+                  <div class="times-dir">Outbound</div>
+                  <strong>HLU 10:41 → arr ~11:47</strong>
+                </div>
+                <div class="times-cell">
+                  <div class="times-dir">Return</div>
+                  <strong>dep 13:37 → HLU 14:40</strong><br/>
+                  or dep 17:27 → HLU 18:29
+                </div>
+              </div>
+              <div class="times-duration">~1h 50min before 13:37 return (rushed) · ~5h 40min before 17:27 return (long, relaxed)</div>
+              <div class="times-note">⚠️ <strong>The 13:37 return is tight</strong> — barely time to walk anywhere after arriving. <strong>Plan for the 17:27 instead:</strong> great for a long lunch at the Rod &amp; Reel plus a proper walk.</div>
+              <div class="times-verify">Times via Realtime Trains — verify on ScotRail before travel</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Garelochhead -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">☕</div>
+            <div class="card-title-block">
+              <div class="card-title">Garelochhead</div>
+              <div class="card-journey">🚂 ~15 minutes</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-row">
+              <div class="detail-icon">🍵</div>
+              <div class="detail-content">
+                <div class="detail-label">Café</div>
+                <div class="detail-text">
+                  <strong>The Perch</strong> — dog-friendly café, 188m from the station
+                </div>
+              </div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-icon">🥾</div>
+              <div class="detail-content">
+                <div class="detail-label">Walk</div>
+                <div class="detail-text">Short local walk — no clear circular route, best for a relaxed wander</div>
+              </div>
+            </div>
+            <div class="card-why">
+              <div class="why-label">Highlights</div>
+              <p>Simplest option — great if you want a short, low-key outing without a long journey.</p>
+            </div>
+            <div class="card-maps">
+              <div class="card-map-wrap">
+                <div class="card-map-label">Detail</div>
+                <div class="card-map" id="map-garelochhead-detail"></div>
+              </div>
+              <div class="card-map-wrap">
+                <div class="card-map-label">Walk overview</div>
+                <div class="card-map" id="map-garelochhead-overview"></div>
+              </div>
+            </div>
+            <div class="card-times">
+              <div class="times-label">🚂 Train Times</div>
+              <div class="times-rows">
+                <div class="times-cell">
+                  <div class="times-dir">Outbound</div>
+                  <strong>HLU 10:41 → arr 10:52</strong><br/>
+                  or HLU 09:50 → arr 10:01 (early)
+                </div>
+                <div class="times-cell">
+                  <div class="times-dir">Return</div>
+                  <strong>dep 14:29 → HLU 14:40</strong><br/>
+                  or dep 18:19 → HLU 18:29
+                </div>
+              </div>
+              <div class="times-duration">~3h 37min at destination before the 14:29 return</div>
+              <div class="times-note">⚠️ <strong>The Perch closes at 3pm on Sundays</strong> — must be back before then. The 14:29 return fits well; the 18:19 return leaves a long gap after the café closes.</div>
+              <div class="times-verify">Times via Realtime Trains — verify on ScotRail before travel</div>
+            </div>
+            <div class="note-warn" style="margin-top:6px;">
+              ⚠️ <strong>Note:</strong> The Perch closes at 3pm on Sundays — plan your timing accordingly.
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /cards-grid -->
+
+      <!-- ─── Practical Notes ──────────────────────────────── -->
+      <div class="practical-section">
+        <div class="section-head">
+          <h2>Before You Go</h2>
+          <p>A few things worth knowing to make sure the day runs smoothly.</p>
+        </div>
+
+        <div class="practical-grid">
+
+          <div class="note-card">
+            <div class="note-card-head">
+              <span class="note-card-icon">🚂</span>
+              <span class="note-card-title">Sunday Timetable</span>
+            </div>
+            <ul>
+              <li>The West Highland Line runs <strong>approximately 3 services each way</strong> on Sundays</li>
+              <li>Suggested departure: <strong>~10:41 from Helensburgh Upper</strong></li>
+              <li>Always confirm on <a href="https://www.scotrail.co.uk" target="_blank" rel="noopener">scotrail.co.uk</a> before you travel</li>
+              <li>Check for <strong>engineering works</strong> — this line is subject to occasional weekend closures</li>
+            </ul>
+            <div class="note-warn">
+              ⚠️ <strong>Fewer trains means fewer chances to get home</strong> — agree on a return time before you set off.
+            </div>
+          </div>
+
+          <div class="note-card">
+            <div class="note-card-head">
+              <span class="note-card-icon">🐾</span>
+              <span class="note-card-title">Dogs on ScotRail</span>
+            </div>
+            <ul>
+              <li><strong>2 dogs travel free</strong> on ScotRail — no ticket needed</li>
+              <li>Dogs must be <strong>kept on leads</strong> throughout the journey</li>
+              <li>Dogs are <strong>not permitted on seats</strong></li>
+              <li>If there is a <strong>rail replacement bus</strong>, dogs cannot board — check before travelling</li>
+            </ul>
+            <div class="note-warn">
+              ⚠️ Always <strong>confirm dog policy</strong> with ScotRail when checking the timetable, especially on Sundays.
+            </div>
+          </div>
+
+        </div><!-- /practical-grid -->
+      </div><!-- /practical-section -->
+
+      <div style="height: 52px;"></div>
+
+    </div><!-- /container -->
+  </main>
+
+  <!-- ─── Footer ──────────────────────────────────────────── -->
+  <footer>
+    <p>Planned with love 🐾</p>
+    <div class="footer-sub">West Highland Line &nbsp;·&nbsp; Scotland &nbsp;·&nbsp; A Sunday adventure</div>
+  </footer>
+
+  <!-- ─── Leaflet JS ─────────────────────────────────────────── -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // ── Map initialisation ──────────────────────────────────────
+    const map = L.map('map', {
+      scrollWheelZoom: false,
+      zoomControl: true,
+    });
+
+    // Warm-toned tile layer (CartoDB Voyager — no API key required)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 15,
+    }).addTo(map);
+
+    // ── Stops ──────────────────────────────────────────────────
+    const stops = [
+      {
+        name: 'Helensburgh Upper',
+        lat: 56.0068,
+        lng: -4.7282,
+        emoji: '🚉',
+        color: '#2d4a2d',
+        label: 'Start here',
+        desc: 'Your starting point',
+        isStart: true,
+      },
+      {
+        name: 'Garelochhead',
+        lat: 56.0789,
+        lng: -4.8284,
+        emoji: '☕',
+        color: '#5a8a5a',
+        label: '~15 mins',
+        desc: 'Easy option · The Perch café',
+        isStart: false,
+      },
+      {
+        name: 'Arrochar & Tarbet',
+        lat: 56.2069,
+        lng: -4.7255,
+        emoji: '⭐',
+        color: '#c9922a',
+        label: '~35 mins · Top Pick',
+        desc: 'Village Inn · Heritage Trail',
+        isTopPick: true,
+        isStart: false,
+      },
+      {
+        name: 'Ardlui',
+        lat: 56.2973,
+        lng: -4.7213,
+        emoji: '🌊',
+        color: '#3a7ca5',
+        label: '~60 mins',
+        desc: 'Ardlui Hotel · Lochside walk',
+        isStart: false,
+      },
+      {
+        name: 'Crianlarich',
+        lat: 56.3874,
+        lng: -4.6169,
+        emoji: '🌲',
+        color: '#4a6a3a',
+        label: '~65 mins',
+        desc: 'Rod & Reel · WHW forest loop',
+        isStart: false,
+      },
+    ];
+
+    // ── Draw the route line ────────────────────────────────────
+    const routeCoords = stops.map(s => [s.lat, s.lng]);
+
+    L.polyline(routeCoords, {
+      color: '#3e6b3e',
+      weight: 3,
+      opacity: 0.55,
+      dashArray: '6, 5',
+    }).addTo(map);
+
+    // ── Custom marker factory ──────────────────────────────────
+    function makeIcon(stop) {
+      const size   = stop.isTopPick ? 44 : stop.isStart ? 38 : 34;
+      const bg     = stop.color;
+      const border = stop.isTopPick ? '#c9922a' : stop.isStart ? '#fff' : 'rgba(255,255,255,0.9)';
+      const bw     = stop.isTopPick ? 3 : 2;
+
+      const html = `
+        <div style="
+          width:${size}px;
+          height:${size}px;
+          background:${bg};
+          border:${bw}px solid ${border};
+          border-radius:50% 50% 50% 0;
+          transform:rotate(-45deg);
+          box-shadow:0 3px 12px rgba(0,0,0,0.28);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+        ">
+          <span style="transform:rotate(45deg);font-size:${stop.isTopPick ? 18 : 14}px;line-height:1;">${stop.emoji}</span>
+        </div>`;
+
+      return L.divIcon({
+        html,
+        className: '',
+        iconSize:   [size, size],
+        iconAnchor: [size / 2, size],
+        popupAnchor:[0, -(size + 4)],
+      });
+    }
+
+    // ── Place markers ──────────────────────────────────────────
+    stops.forEach(stop => {
+      const marker = L.marker([stop.lat, stop.lng], { icon: makeIcon(stop) }).addTo(map);
+
+      const popupContent = `
+        <div style="font-family:'Inter',sans-serif;min-width:160px;">
+          <div style="font-weight:700;font-size:0.9rem;color:#1e2b1e;margin-bottom:3px;">${stop.emoji} ${stop.name}</div>
+          <div style="font-size:0.78rem;color:#6a8a6a;margin-bottom:4px;">${stop.label}</div>
+          <div style="font-size:0.8rem;color:#4a5e4a;">${stop.desc}</div>
+        </div>`;
+
+      marker.bindPopup(popupContent, { maxWidth: 220 });
+
+      // Open popup on hover for desktop
+      marker.on('mouseover', function() { this.openPopup(); });
+    });
+
+    // ── Fit map to show all stops with padding ─────────────────
+    const bounds = L.latLngBounds(routeCoords);
+    map.fitBounds(bounds, {
+      paddingTopLeft:     [40, 40],
+      paddingBottomRight: [40, 40],
+    });
+  </script>
+
+  <!-- ─── Card mini-map initialisation ────────────────────────── -->
+  <script>
+    (function () {
+      // ── Shared tile layer factory ──────────────────────────────
+      function voyagerTiles() {
+        return L.tileLayer(
+          'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+          {
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19,
+          }
+        );
+      }
+
+      // ── Custom circular marker factory ─────────────────────────
+      // type: 'station' → blue (#2A6496) | 'pub' → amber (#E8A020)
+      function circleIcon(type) {
+        var color = type === 'station' ? '#2A6496' : '#E8A020';
+        var size  = 14;
+        var html  = '<div style="'
+          + 'width:' + size + 'px;'
+          + 'height:' + size + 'px;'
+          + 'background:' + color + ';'
+          + 'border:2.5px solid #fff;'
+          + 'border-radius:50%;'
+          + 'box-shadow:0 2px 6px rgba(0,0,0,0.30);'
+          + '"></div>';
+        return L.divIcon({
+          html:        html,
+          className:   '',
+          iconSize:    [size, size],
+          iconAnchor:  [size / 2, size / 2],
+          popupAnchor: [0, -(size / 2 + 4)],
+        });
+      }
+
+      // ── Walk polyline style ────────────────────────────────────
+      var walkStyle = { color: '#3A7D44', weight: 3, opacity: 0.8 };
+
+      // ── Base map factory (no initial view — caller uses fitBounds) ─
+      function makeCardMap(id) {
+        var m = L.map(id, {
+          zoomControl:     false,
+          scrollWheelZoom: false,
+          dragging:        false,
+          touchZoom:       false,
+          doubleClickZoom: false,
+          boxZoom:         false,
+          keyboard:        false,
+        });
+        voyagerTiles().addTo(m);
+        return m;
+      }
+
+      // ── Helper: add a pin with a click popup ──────────────────
+      function addPin(m, latlng, type, label) {
+        var marker = L.marker(latlng, { icon: circleIcon(type) }).addTo(m);
+        marker.bindPopup(
+          '<span style="font-family:\'Inter\',sans-serif;font-size:0.82rem;font-weight:600;">' + label + '</span>',
+          { maxWidth: 180 }
+        );
+        return marker;
+      }
+
+      // ── Use requestAnimationFrame so divs are in the DOM ──────
+      requestAnimationFrame(function () {
+
+        // ════════════════════════════════════════════════════════
+        // Arrochar & Tarbet
+        // ════════════════════════════════════════════════════════
+        var arrStation = [56.2033, -4.7232];
+        var arrPub     = [56.1931, -4.7516];
+        var arrWalk    = [
+          [56.2033,-4.7232],[56.2020,-4.7170],[56.1990,-4.7220],
+          [56.1960,-4.7320],[56.1950,-4.7380],[56.1931,-4.7516],
+          [56.2000,-4.7450],[56.2020,-4.7340],[56.2033,-4.7232]
+        ];
+
+        // Detail map — fitBounds on station + pub only
+        var mArrDetail = makeCardMap('map-arrochar-detail');
+        addPin(mArrDetail, arrStation, 'station', 'Arrochar &amp; Tarbet Station');
+        addPin(mArrDetail, arrPub,     'pub',     'Village Inn Arrochar');
+        mArrDetail.fitBounds(L.latLngBounds([arrStation, arrPub]), { padding: [28, 28] });
+
+        // Overview map — fitBounds on all walk coords + pins
+        var mArrOver = makeCardMap('map-arrochar-overview');
+        L.polyline(arrWalk, walkStyle).addTo(mArrOver);
+        addPin(mArrOver, arrStation, 'station', 'Arrochar &amp; Tarbet Station');
+        addPin(mArrOver, arrPub,     'pub',     'Village Inn Arrochar');
+        mArrOver.fitBounds(L.latLngBounds(arrWalk.concat([arrStation, arrPub])), { padding: [18, 18] });
+
+        // ════════════════════════════════════════════════════════
+        // Ardlui
+        // ════════════════════════════════════════════════════════
+        var ardStation = [56.3044, -4.7204];
+        var ardPub     = [56.3040, -4.7215]; // offset slightly west so pins don't stack
+        var ardWalkOut = [
+          [56.3044,-4.7204],[56.2980,-4.7215],[56.2920,-4.7230],[56.2870,-4.7240]
+        ];
+        var ardWalkRtn = [
+          [56.2870,-4.7240],[56.2920,-4.7218],[56.2980,-4.7204],[56.3044,-4.7204]
+        ];
+        var ardAllCoords = ardWalkOut.concat(ardWalkRtn).concat([ardStation, ardPub]);
+
+        // Detail map
+        var mArdDetail = makeCardMap('map-ardlui-detail');
+        addPin(mArdDetail, ardStation, 'station', 'Ardlui Station');
+        addPin(mArdDetail, ardPub,     'pub',     'Ardlui Hotel');
+        mArdDetail.fitBounds(L.latLngBounds([ardStation, ardPub]), { padding: [28, 28] });
+
+        // Overview map
+        var mArdOver = makeCardMap('map-ardlui-overview');
+        L.polyline(ardWalkOut, walkStyle).addTo(mArdOver);
+        L.polyline(ardWalkRtn, Object.assign({}, walkStyle, { opacity: 0.45, dashArray: '5,4' })).addTo(mArdOver);
+        L.marker([56.2870, -4.7240], {
+          icon: L.divIcon({
+            html: '<span style="font-family:Inter,sans-serif;font-size:10px;font-weight:600;color:#3A7D44;white-space:nowrap;background:rgba(255,255,255,0.85);padding:1px 4px;border-radius:3px;">out &amp; back</span>',
+            className:  '',
+            iconAnchor: [28, 6],
+          })
+        }).addTo(mArdOver);
+        addPin(mArdOver, ardStation, 'station', 'Ardlui Station');
+        addPin(mArdOver, ardPub,     'pub',     'Ardlui Hotel');
+        mArdOver.fitBounds(L.latLngBounds(ardAllCoords), { padding: [18, 18] });
+
+        // ════════════════════════════════════════════════════════
+        // Crianlarich
+        // ════════════════════════════════════════════════════════
+        var criStation = [56.3905, -4.6184];
+        var criPub     = [56.3919, -4.6167];
+        var criWalk    = [
+          [56.3905,-4.6184],[56.3880,-4.6250],[56.3850,-4.6320],
+          [56.3820,-4.6280],[56.3840,-4.6200],[56.3870,-4.6170],
+          [56.3905,-4.6184]
+        ];
+
+        // Detail map
+        var mCriDetail = makeCardMap('map-crianlarich-detail');
+        addPin(mCriDetail, criStation, 'station', 'Crianlarich Station');
+        addPin(mCriDetail, criPub,     'pub',     'Rod &amp; Reel');
+        mCriDetail.fitBounds(L.latLngBounds([criStation, criPub]), { padding: [28, 28] });
+
+        // Overview map
+        var mCriOver = makeCardMap('map-crianlarich-overview');
+        L.polyline(criWalk, walkStyle).addTo(mCriOver);
+        addPin(mCriOver, criStation, 'station', 'Crianlarich Station');
+        addPin(mCriOver, criPub,     'pub',     'Rod &amp; Reel');
+        mCriOver.fitBounds(L.latLngBounds(criWalk.concat([criStation, criPub])), { padding: [18, 18] });
+
+        // ════════════════════════════════════════════════════════
+        // Garelochhead
+        // ════════════════════════════════════════════════════════
+        var garStation = [56.0798, -4.8257];
+        var garPub     = [56.0798, -4.8291];
+        var garWalk    = [
+          [56.0798,-4.8257],[56.0760,-4.8250],[56.0720,-4.8240],[56.0680,-4.8235]
+        ];
+
+        // Detail map
+        var mGarDetail = makeCardMap('map-garelochhead-detail');
+        addPin(mGarDetail, garStation, 'station', 'Garelochhead Station');
+        addPin(mGarDetail, garPub,     'pub',     'The Perch');
+        mGarDetail.fitBounds(L.latLngBounds([garStation, garPub]), { padding: [28, 28] });
+
+        // Overview map
+        var mGarOver = makeCardMap('map-garelochhead-overview');
+        L.polyline(garWalk, walkStyle).addTo(mGarOver);
+        L.marker([56.0680, -4.8235], {
+          icon: L.divIcon({
+            html: '<span style="font-family:Inter,sans-serif;font-size:10px;font-weight:600;color:#3A7D44;white-space:nowrap;background:rgba(255,255,255,0.85);padding:1px 4px;border-radius:3px;">Local stroll — no circular route</span>',
+            className:  '',
+            iconAnchor: [70, -4],
+          })
+        }).addTo(mGarOver);
+        addPin(mGarOver, garStation, 'station', 'Garelochhead Station');
+        addPin(mGarOver, garPub,     'pub',     'The Perch');
+        mGarOver.fitBounds(L.latLngBounds(garWalk.concat([garStation, garPub])), { padding: [18, 18] });
+
+      }); // end requestAnimationFrame
+
+    })();
+  </script>
+
+</body>
+</html>
